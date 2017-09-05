@@ -6,7 +6,7 @@ https://github.com/solrex/caffe-mobile
 https://github.com/manutdzou/faster-rcnn-pure-c-plus-implement  
 
 # Screenshots
-<img src="https://raw.githubusercontent.com/jazzseow/Faster-RCNN-on-Android/master/screenshot/Faster_RCNN_1.png" width="40%" /> | <img src="https://raw.githubusercontent.com/jazzseow/Faster-RCNN-on-Android/master/screenshot/Faster_RCNN_2.png" width="40%" />
+<img src="https://raw.githubusercontent.com/jazzseow/Faster-RCNN-on-Android/master/screenshot/Faster_RCNN_1.png" width="40%" />   <img src="https://raw.githubusercontent.com/jazzseow/Faster-RCNN-on-Android/master/screenshot/Faster_RCNN_2.png" width="40%" />
 
 # For Demo
 
