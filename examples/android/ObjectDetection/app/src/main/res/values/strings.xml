@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ObjectDetection</string>
+    <string name="loading">Loading...</string>
+    <string name="request_permission">Permissions needed</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_image">Add image</string>
+    <string name="dialog_wait">Loading...</string>
+    <string name="dialog_object_description">Testing with Faster RCNN</string>
+</resources>

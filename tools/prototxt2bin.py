@@ -3,7 +3,9 @@ import sys
 from os import path
 from caffe.proto import caffe_pb2
 from google.protobuf import text_format
+import inspect as ins
 
+print (ins.getfile(caffe_pb2))
 if len(sys.argv) < 2:
     print("Usage: ./prototxt2bin.py net.prototxt")
 

@@ -35,24 +35,22 @@ public:
    * @brief Use loaded model to classify a Image
    * @param rgba: Grayscale(1 channel) or BGR(3 channels) pixels array
    */
-   bool predictImage(const uint8_t* rgba,
-                     int channels,
-                     const std::vector<float> &mean,
-                     float im_info[3],
-                     int ori_img_info[2],
-                     std::vector<std::vector<float> > &result);
+  bool predictImage(const uint8_t *rgba,
+                    int channels,
+                    const std::vector<float> &mean,
+                    std::vector<float> &result);
 
-  // int input_channels() {
-  //   return input_channels_;
-  // }
-  //
-  // int input_width() {
-  //   return input_width_;
-  // }
-  //
-  // int input_height() {
-  //     return input_height_;
-  // }
+  int input_channels() {
+    return input_channels_;
+  }
+
+  int input_width() {
+    return input_width_;
+  }
+
+  int input_height() {
+      return input_height_;
+  }
 private:
   /**
    * @brief Construct a caffe net from the param file (*.prototxt)
@@ -60,17 +58,15 @@ private:
    */
   CaffeMobile(const string &param_file, const string &trained_file);
 
-  void bbox_transform_inv(int num, const float* box_deltas, const float* pred_cls, float* boxes, float* pred, int img_height, int img_width);
-  void apply_nms(vector<vector<float> > &pred_boxes, vector<float> &confidence);  /// @brief
-  void checkConfidence(vector<vector<float>> pred_boxes, vector<float> confidence, vector<vector<float>> &results, int cls_num);
 
+  /// @brief
   static CaffeMobile *caffe_mobile_;
   /// @brief
   shared_ptr<Net<float>> net_;
   /// @brief
-  // int input_channels_;
-  // int input_width_;
-  // int input_height_;
+  int input_channels_;
+  int input_width_;
+  int input_height_;
 };
 
 } // namespace caffe
