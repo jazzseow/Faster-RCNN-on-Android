@@ -32,7 +32,7 @@ VGG16 Faster RCNN model is used for this app. To run the app, you will need to m
 
 
 # To add your custom model/layer
-
+Info to be added
 
 # For MacOSX & Ubuntu
 
