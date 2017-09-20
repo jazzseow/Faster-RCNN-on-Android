@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.jazz.objectdetection.Utils.ImageFilePath;
 
@@ -25,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView mImageView;
     private static final int REQUEST_IMAGE_CAPTURE = 0, SELECT_FILE = 1;
-    private Uri imageUri;
+    private Uri imageUri, camUri = null, galUri = null;
 
 
     static {
@@ -60,6 +61,53 @@ public class MainActivity extends AppCompatActivity {
 
         });
         builder.show();
+    }
+
+    public void runNetwork(View view){
+        int id = view.getId();
+
+        if (id == R.id.faster_rcnn){
+            if (galUri != null){
+                Intent intent = new Intent(this, ObjectDetectActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Path", ImageFilePath.getPath(this, galUri));
+                bundle.putInt("Model", 0);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+            else if (camUri != null){
+                Intent intent = new Intent(this, ObjectDetectActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Path", getRealPathFromURI(camUri));
+                bundle.putInt("Model", 0);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+            else{
+                Toast.makeText(this,"Please select an Image", Toast.LENGTH_LONG).show();
+            }
+        }
+        else if (id == R.id.ssd){
+            if (galUri != null){
+                Intent intent = new Intent(this, ObjectDetectActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Path", ImageFilePath.getPath(this, galUri));
+                bundle.putInt("Model", 1);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+            else if (camUri != null){
+                Intent intent = new Intent(this, ObjectDetectActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Path", getRealPathFromURI(camUri));
+                bundle.putInt("Model", 1);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+            else{
+                Toast.makeText(this,"Please select an Image", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
 
@@ -100,31 +148,22 @@ public class MainActivity extends AppCompatActivity {
         mImageView.setImageBitmap(thumbnail);
 
         // CALL THIS METHOD TO GET THE URI FROM THE BITMAP
-        Uri tempUri = getImageUri(getApplicationContext(), thumbnail);
+        camUri = getImageUri(getApplicationContext(), thumbnail);
 
-        Intent intent = new Intent(this, ObjectDetectActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("Path", getRealPathFromURI(tempUri));
-        intent.putExtras(bundle);
-        startActivity(intent);
+
     }
 
     private void onSelectFromGalleryResult(Intent data) {
         Bitmap bm = null;
-        Uri uri = data.getData();
+        galUri = data.getData();
         if (data != null) {
             try {
-                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
+                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), galUri);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         mImageView.setImageBitmap(bm);
-        Intent intent = new Intent(this, ObjectDetectActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("Path", ImageFilePath.getPath(this, uri));
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     public String getRealPathFromURI(Uri uri) {

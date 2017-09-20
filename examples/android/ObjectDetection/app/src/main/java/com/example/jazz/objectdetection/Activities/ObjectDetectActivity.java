@@ -38,6 +38,7 @@ public class ObjectDetectActivity extends AppCompatActivity {
     private CaffeInterface caffeInterface;
     private double timeTaken;
     private String imgPath;
+    private int model;
 
     private final int[] COLOR= {0xFF0080FF, 0xFF00FF80, 0xFFFF0040, 0xFFF9F906, 0xFF00FFBF, 0xFFD24DFF};
 
@@ -51,6 +52,9 @@ public class ObjectDetectActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.text_time);
 
         imgPath = getIntent().getExtras().getString("Path");
+        model = getIntent().getIntExtra("Model", 0);
+
+        new LoadModel().execute(model);
 
         if (!new File(imgPath).exists()) {
             Toast.makeText(this, "No file path", Toast.LENGTH_SHORT).show();
@@ -59,6 +63,37 @@ public class ObjectDetectActivity extends AppCompatActivity {
         }
         DetectTask task = new DetectTask();
         task.execute(imgPath);
+    }
+
+    private class LoadModel extends AsyncTask<Integer,Void, Void>{
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            final int model = integers[0];
+            caffeInterface = new CaffeInterface();
+            if (model == 0){
+                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/net1.protobin");
+                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/weight1.caffemodel");
+                Log.d(TAG, "onCreate: modelFile:" + modelFile.getPath());
+                Log.d(TAG, "onCreate: weightFIle:" + weightFile.getPath());
+
+                if (!caffeInterface.loadModel(modelFile.getPath(), weightFile.getPath())){
+                    Log.d(TAG, "Cannot load model");
+                    return null;
+                }
+            }
+            else if (model == 1){
+                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/net2.protobin");
+                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/weight2.caffemodel");
+                Log.d(TAG, "onCreate: modelFile:" + modelFile.getPath());
+                Log.d(TAG, "onCreate: weightFIle:" + weightFile.getPath());
+
+                if (!caffeInterface.loadModel(modelFile.getPath(), weightFile.getPath())){
+                    Log.d(TAG, "Cannot load model");
+                    return null;
+                }
+            }
+            return null;
+        }
     }
 
     // ==========================================================
@@ -70,7 +105,12 @@ public class ObjectDetectActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mmDialog = ProgressDialog.show(ObjectDetectActivity.this, getString(R.string.dialog_wait), getString(R.string.dialog_object_description), true);
+            if (model == 0){
+                mmDialog = ProgressDialog.show(ObjectDetectActivity.this, getString(R.string.dialog_wait), "Testing with Faster RCNN", true);
+            }
+            else if (model == 1){
+                mmDialog = ProgressDialog.show(ObjectDetectActivity.this, getString(R.string.dialog_wait), "Testing with SSD", true);
+            }
         }
 
         @Override
@@ -79,22 +119,12 @@ public class ObjectDetectActivity extends AppCompatActivity {
             long startTime;
             long endTime;
             Log.d(TAG, "DetectTask filePath:" + filePath);
-            File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/net.protobin");
-            File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/weight.caffemodel");
-            Log.d(TAG, "onCreate: modelFile:" + modelFile.getPath());
-            Log.d(TAG, "onCreate: weightFIle:" + weightFile.getPath());
-
-            caffeInterface = new CaffeInterface();
-            if (!caffeInterface.loadModel(modelFile.getPath(), weightFile.getPath())){
-                Log.d(TAG, "Cannot load model");
-                return null;
-            }
 
             float[] mean = {102.9801f, 115.9465f, 122.7717f};
 
             startTime = System.currentTimeMillis();
             Log.d(TAG, "Start objDetect");
-            List<PredictionResult> rets = caffeInterface.detectImage(filePath, mean);
+            List<PredictionResult> rets = caffeInterface.detectImage(filePath, mean, model);
             Log.d(TAG, "end objDetect");
             endTime = System.currentTimeMillis();
             timeTaken = (double) (endTime - startTime) / 1000;
@@ -170,9 +200,6 @@ public class ObjectDetectActivity extends AppCompatActivity {
             };
 
             listView.setAdapter(mResultAdapter);
-
-
-
         }
     }
 }

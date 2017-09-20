@@ -33,9 +33,17 @@ public class CaffeInterface {
         int[] ori_img_info = new int[2];
     }
     
-    public List<PredictionResult> detectImage(String fileName, float[] mean) {
-        CaffeImage image = readImage(fileName);
-        float[][] result = detect(image.pixels, image.channels, mean, image.im_info, image.ori_img_info);
+    public List<PredictionResult> detectImage(String fileName, float[] mean, int model) {
+        float[][] result ;
+        if (model == 0) {
+            Log.i(TAG,"Faster RCNN");
+            CaffeImage image = readImageFasterRCNN(fileName);
+            result = fasterRCNN(image.pixels, image.channels, mean, image.im_info, image.ori_img_info);
+        }else{
+            Log.i(TAG,"SSD");
+            CaffeImage image = readImageSSD(fileName);
+            result = ssd(image.pixels, mean, image.ori_img_info);
+        }
 
         List <PredictionResult> rets = new ArrayList<PredictionResult>();
         if (result == null){
@@ -49,7 +57,7 @@ public class CaffeInterface {
         return rets;
     }
 
-    private CaffeImage readImage(String fileName) {
+    private CaffeImage readImageFasterRCNN(String fileName) {
         //Log.i(TAG, "readImage: reading: " + fileName);
         // Read image file to bitmap (in ARGB format)
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -65,6 +73,7 @@ public class CaffeInterface {
 
         image.ori_img_info[0] = bitmap.getHeight();
         image.ori_img_info[1] = bitmap.getWidth();
+
 
         int max_side = max(image.ori_img_info[0], image.ori_img_info[1]);
         int min_side = min(image.ori_img_info[0], image.ori_img_info[1]);
@@ -105,11 +114,47 @@ public class CaffeInterface {
                 + Integer.toHexString((image.pixels[0] << 24 & 0xff000000) | (image.pixels[1] << 16 & 0xff0000)
                 | (image.pixels[2] << 8 & 0xff00) | (image.pixels[3] & 0xff) ));
         return image;
+    }
 
+    private CaffeImage readImageSSD(String fileName){
+        //Log.i(TAG, "readImage: reading: " + fileName);
+        // Read image file to bitmap (in ARGB format)
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inPremultiplied = false;
+        Bitmap bitmap = BitmapFactory.decodeFile(fileName, options);
+
+        // Scale image to 300 x 300
+        CaffeImage image = new CaffeImage();
+
+        image.ori_img_info[0] = bitmap.getHeight();
+        image.ori_img_info[1] = bitmap.getWidth();
+
+        Log.i(TAG,"imgInfo[0]: "+ image.ori_img_info[0] + "   imgInfo[1]: "+ image.ori_img_info[1]);
+
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true);
+
+        // Copy bitmap pixels to buffer
+        ByteBuffer argb_buf = ByteBuffer.allocate(scaledBitmap.getByteCount());
+        scaledBitmap.copyPixelsToBuffer(argb_buf);
+
+        image.channels = 4;
+
+        Log.i(TAG, "readImage: image CxWxH(scaled img): " + image.channels + "x" + scaledBitmap.getWidth() + "x" + scaledBitmap.getHeight());
+        // Get the underlying array containing the ARGB pixels
+        image.pixels = argb_buf.array();
+        Log.d(TAG, "readImage: bitmap(0,0)="
+                + Integer.toHexString(bitmap.getPixel(0, 0))
+                + ", rgba[0,0]="
+                + Integer.toHexString((image.pixels[0] << 24 & 0xff000000) | (image.pixels[1] << 16 & 0xff0000)
+                | (image.pixels[2] << 8 & 0xff00) | (image.pixels[3] & 0xff) ));
+        return image;
     }
 
     public native boolean loadModel(String modelPath, String weightPath);
 
-    private native float[][] detect(byte[] bitmap, int channels, float[]mean, float[] im_info, int[] ori_img_info);
+    private native float[][] fasterRCNN(byte[] bitmap, int channels, float[]mean, float[] im_info, int[] ori_img_info);
+
+    private native float[][] ssd(byte[] bitmap, float[]mean, int[] ori_img_info);
     
 }

@@ -1,0 +1,2 @@
+SET(OpenBLAS_VERSION "0.2.19")
+SET(OpenBLAS_INCLUDE_DIRS ../arm64-v8a-21-OpenBLAS/include)

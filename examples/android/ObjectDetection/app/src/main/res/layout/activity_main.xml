@@ -27,4 +27,33 @@
         android:layout_gravity="center_horizontal"
         android:onClick="openDialog"/>
 
+    <RelativeLayout
+        android:layout_weight="5"
+        android:layout_width="315dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/faster_rcnn"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_weight="40"
+            android:onClick="runNetwork"
+            android:text="Faster RCNN" />
+
+        <Button
+            android:id="@+id/ssd"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_weight="40"
+            android:onClick="runNetwork"
+            android:text="SSD" />
+
+
+    </RelativeLayout>
+
 </LinearLayout>

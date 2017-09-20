@@ -1,0 +1,2 @@
+SET(OpenBLAS_VERSION "0.2.19")
+SET(OpenBLAS_INCLUDE_DIRS ../armeabi-16-OpenBLAS/include)
