@@ -213,6 +213,8 @@ namespace caffe {
       checkConfidence(tmp_box, temp_confidence, detections, (int)*(result + 1), ori_img_info);
       result += 7;
     }
+
+    return true;
   }
 
   void CaffeMobile::checkConfidence(vector<float> pred_boxes,

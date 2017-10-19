@@ -71,8 +71,8 @@ public class ObjectDetectActivity extends AppCompatActivity {
             final int model = integers[0];
             caffeInterface = new CaffeInterface();
             if (model == 0){
-                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/net1.protobin");
-                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/weight1.caffemodel");
+                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/FRCNN_net.protobin");
+                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/FRCNN_weight.caffemodel");
                 Log.d(TAG, "onCreate: modelFile:" + modelFile.getPath());
                 Log.d(TAG, "onCreate: weightFIle:" + weightFile.getPath());
 
@@ -82,8 +82,8 @@ public class ObjectDetectActivity extends AppCompatActivity {
                 }
             }
             else if (model == 1){
-                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/net2.protobin");
-                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/weight2.caffemodel");
+                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/SSD_net.protobin");
+                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/SSD_weight.caffemodel");
                 Log.d(TAG, "onCreate: modelFile:" + modelFile.getPath());
                 Log.d(TAG, "onCreate: weightFIle:" + weightFile.getPath());
 
