@@ -35,10 +35,23 @@ public:
    * @brief Use loaded model to classify a Image
    * @param rgba: Grayscale(1 channel) or BGR(3 channels) pixels array
    */
-  bool predictImage(const uint8_t *rgba,
-                    int channels,
-                    const std::vector<float> &mean,
-                    std::vector<float> &result);
+  bool predictFasterRCNN(const uint8_t* rgba,
+                         int channels,
+                         const std::vector<float> &mean,
+                         float im_info[3],
+                         int ori_img_info[2],
+                         std::vector<std::vector<float> > &result);
+
+  bool predictSSD(const uint8_t* rgba,
+                  const std::vector<float> &mean,
+                  int ori_img_info[2],
+                  std::vector<std::vector<float> > &result);
+
+  bool predictMNSSD(const uint8_t* rgba,
+                  const std::vector<float> &mean,
+                  int ori_img_info[2],
+                  std::vector<std::vector<float> > &result);
+
 
   int input_channels() {
     return input_channels_;
@@ -58,8 +71,11 @@ private:
    */
   CaffeMobile(const string &param_file, const string &trained_file);
 
+  void bbox_transform_inv(int num, const float* box_deltas, const float* pred_cls, float* boxes, float* pred, int img_height, int img_width);
+  void apply_nms(vector<vector<float> > &pred_boxes, vector<float> &confidence);  /// @brief
+  void checkConfidence(vector<vector<float>> pred_boxes, vector<float> confidence, vector<vector<float>> &results, int cls_num);
+  void checkConfidence(vector<float> pred_boxes, float confidence, vector<vector<float>> &results, int cls_num, int ori_img_info[2]);
 
-  /// @brief
   static CaffeMobile *caffe_mobile_;
   /// @brief
   shared_ptr<Net<float>> net_;

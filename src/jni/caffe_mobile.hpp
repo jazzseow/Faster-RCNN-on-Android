@@ -47,6 +47,11 @@ public:
                   int ori_img_info[2],
                   std::vector<std::vector<float> > &result);
 
+  bool predictMNSSD(const uint8_t* rgba,
+                  const std::vector<float> &mean,
+                  int ori_img_info[2],
+                  std::vector<std::vector<float> > &result);
+
 
   int input_channels() {
     return input_channels_;

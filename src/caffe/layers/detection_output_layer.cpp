@@ -12,7 +12,6 @@
 #include "caffe/util/io.hpp"
 #include "caffe/layers/detection_output_layer.hpp"
 
-
 namespace caffe {
 
 template <typename Dtype>

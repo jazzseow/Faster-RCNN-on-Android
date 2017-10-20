@@ -35,10 +35,13 @@ public class ObjectDetectActivity extends AppCompatActivity {
     private ImageView imageView;
     private ListView listView;
     private TextView textView;
-    private CaffeInterface caffeInterface;
+
     private double timeTaken;
+
+    private CaffeInterface caffeInterface;
     private String imgPath;
     private int model;
+    private float[] mean;
 
     private final int[] COLOR= {0xFF0080FF, 0xFF00FF80, 0xFFFF0040, 0xFFF9F906, 0xFF00FFBF, 0xFFD24DFF};
 
@@ -78,8 +81,9 @@ public class ObjectDetectActivity extends AppCompatActivity {
 
                 if (!caffeInterface.loadModel(modelFile.getPath(), weightFile.getPath())){
                     Log.d(TAG, "Cannot load model");
-                    return null;
                 }
+
+                mean = new float[] {127.5f, 127.5f, 127.5f};
             }
             else if (model == 1){
                 File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/SSD_net.protobin");
@@ -89,8 +93,21 @@ public class ObjectDetectActivity extends AppCompatActivity {
 
                 if (!caffeInterface.loadModel(modelFile.getPath(), weightFile.getPath())){
                     Log.d(TAG, "Cannot load model");
-                    return null;
                 }
+
+                mean = new float[] {102.9801f, 115.9465f, 122.7717f};
+            }
+            else if (model == 2){
+                File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/MNSSD_net.protobin");
+                File weightFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/MNSSD_weight.caffemodel");
+                Log.d(TAG, "onCreate: modelFile:" + modelFile.getPath());
+                Log.d(TAG, "onCreate: weightFIle:" + weightFile.getPath());
+
+                if (!caffeInterface.loadModel(modelFile.getPath(), weightFile.getPath())){
+                    Log.d(TAG, "Cannot load model");
+                }
+
+                mean = new float[] {102.9801f, 115.9465f, 122.7717f};
             }
             return null;
         }
@@ -111,6 +128,9 @@ public class ObjectDetectActivity extends AppCompatActivity {
             else if (model == 1){
                 mmDialog = ProgressDialog.show(ObjectDetectActivity.this, getString(R.string.dialog_wait), "Testing with SSD", true);
             }
+            else if (model == 2){
+                mmDialog = ProgressDialog.show(ObjectDetectActivity.this, getString(R.string.dialog_wait), "Testing with MobileNet-SSD", true);
+            }
         }
 
         @Override
@@ -119,8 +139,6 @@ public class ObjectDetectActivity extends AppCompatActivity {
             long startTime;
             long endTime;
             Log.d(TAG, "DetectTask filePath:" + filePath);
-
-            float[] mean = {102.9801f, 115.9465f, 122.7717f};
 
             startTime = System.currentTimeMillis();
             Log.d(TAG, "Start objDetect");
@@ -190,7 +208,7 @@ public class ObjectDetectActivity extends AppCompatActivity {
                     View row = convertView;
 
                     row = inflater.inflate(R.layout.list_item, parent, false);
-                    TextView textView = (TextView) row.findViewById(R.id.item);
+                    TextView textView = row.findViewById(R.id.item);
 
                     textView.setText(lists.get(position));
 

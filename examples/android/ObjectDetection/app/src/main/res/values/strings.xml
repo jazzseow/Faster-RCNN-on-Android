@@ -7,4 +7,12 @@
     <string name="add_image">Add image</string>
     <string name="dialog_wait">Loading...</string>
     <string name="dialog_object_description">Testing with Faster RCNN</string>
+    <string name="model_prompt">Select a model</string>
+    <string name="run">Run test</string>
+
+    <string-array name="nn_models">
+        <item>Faster RCNN</item>
+        <item>SSD</item>
+        <item>MobileNet SSD</item>
+    </string-array>
 </resources>

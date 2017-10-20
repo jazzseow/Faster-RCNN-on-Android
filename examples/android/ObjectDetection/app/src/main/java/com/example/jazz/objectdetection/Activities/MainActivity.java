@@ -12,7 +12,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.jazz.objectdetection.Utils.ImageFilePath;
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mImageView;
     private static final int REQUEST_IMAGE_CAPTURE = 0, SELECT_FILE = 1;
     private Uri imageUri, camUri = null, galUri = null;
+    private int model = 2;
 
 
     static {
@@ -38,8 +41,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mImageView = (ImageView) findViewById(R.id.image);
+
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                model = i;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
+
+    public void runTest(View view){
+        if (galUri != null){
+            Intent intent = new Intent(MainActivity.this, ObjectDetectActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("Path", ImageFilePath.getPath(MainActivity.this, galUri));
+            bundle.putInt("Model", model);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+        else if (camUri != null){
+            Intent intent = new Intent(MainActivity.this, ObjectDetectActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("Path", getRealPathFromURI(camUri));
+            bundle.putInt("Model", model);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+        else{
+            Toast.makeText(MainActivity.this,"Please select an Image", Toast.LENGTH_LONG).show();
+        }
+    }
 
     public void openDialog(View view) {
         final CharSequence[] items = {"Take Photo", "Choose from Library",
@@ -61,53 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
         });
         builder.show();
-    }
-
-    public void runNetwork(View view){
-        int id = view.getId();
-
-        if (id == R.id.faster_rcnn){
-            if (galUri != null){
-                Intent intent = new Intent(this, ObjectDetectActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("Path", ImageFilePath.getPath(this, galUri));
-                bundle.putInt("Model", 0);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-            else if (camUri != null){
-                Intent intent = new Intent(this, ObjectDetectActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("Path", getRealPathFromURI(camUri));
-                bundle.putInt("Model", 0);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-            else{
-                Toast.makeText(this,"Please select an Image", Toast.LENGTH_LONG).show();
-            }
-        }
-        else if (id == R.id.ssd){
-            if (galUri != null){
-                Intent intent = new Intent(this, ObjectDetectActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("Path", ImageFilePath.getPath(this, galUri));
-                bundle.putInt("Model", 1);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-            else if (camUri != null){
-                Intent intent = new Intent(this, ObjectDetectActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("Path", getRealPathFromURI(camUri));
-                bundle.putInt("Model", 1);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-            else{
-                Toast.makeText(this,"Please select an Image", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
 

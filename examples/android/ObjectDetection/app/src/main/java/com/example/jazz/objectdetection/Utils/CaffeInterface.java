@@ -34,15 +34,21 @@ public class CaffeInterface {
     }
     
     public List<PredictionResult> detectImage(String fileName, float[] mean, int model) {
-        float[][] result ;
+        float[][] result = null;
         if (model == 0) {
             Log.i(TAG,"Faster RCNN");
             CaffeImage image = readImageFasterRCNN(fileName);
             result = fasterRCNN(image.pixels, image.channels, mean, image.im_info, image.ori_img_info);
-        }else{
+        }
+        else if (model == 1){
             Log.i(TAG,"SSD");
             CaffeImage image = readImageSSD(fileName);
             result = ssd(image.pixels, mean, image.ori_img_info);
+        }
+        else if (model == 2){
+            Log.i(TAG,"MNSSD");
+            CaffeImage image = readImageSSD(fileName);
+            result = mnssd(image.pixels, mean, image.ori_img_info);
         }
 
         List <PredictionResult> rets = new ArrayList<PredictionResult>();
@@ -156,5 +162,7 @@ public class CaffeInterface {
     private native float[][] fasterRCNN(byte[] bitmap, int channels, float[]mean, float[] im_info, int[] ori_img_info);
 
     private native float[][] ssd(byte[] bitmap, float[]mean, int[] ori_img_info);
+
+    private native float[][] mnssd(byte[] bitmap, float[]mean, int[] ori_img_info);
     
 }
