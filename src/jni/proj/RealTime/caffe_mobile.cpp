@@ -48,36 +48,17 @@ namespace caffe {
     net_.reset();
   }
 
-  bool CaffeMobile::predictMNSSD(const uint8_t* rgba,
-                                 const std::vector<float> &mean,
-                                 std::vector<std::vector<float> > &detections){
-    if ((rgba == NULL) || net_.get() == NULL) {
-      LOG(ERROR) << "Invalid arguments: rgba=" << rgba
-        << ",net_=" << net_.get();
-      return false;
-    }
-
+  bool CaffeMobile::predictMNSSD(float *inputData,
+                               int h, int w,
+                               std::vector<std::vector<float> > &detections){
     Blob<float> *input_layer = net_->input_blobs()[0];
     input_layer->Reshape(1, 3, input_height(), input_width());
 
     net_->Reshape();
+
+    net_->blob_by_name("data")->set_cpu_data(inputData);
+
     LOG(INFO);
-
-    float *input_data = input_layer->mutable_cpu_data();
-    size_t plane_size = input_height() * input_width();
-
-    for (size_t i = 0; i < plane_size; i++) {
-      input_data[i] = static_cast<float>(rgba[i * 4 + 2]);                   // B
-      input_data[plane_size + i] = static_cast<float>(rgba[i * 4 + 1]);      // G
-      input_data[2 * plane_size + i] = static_cast<float>(rgba[i * 4]);      // R
-      // Alpha is discarded
-      if (mean.size() == 3) {
-        input_data[i] = (input_data[i] - mean[0]) * 0.007843;
-        input_data[plane_size + i] = (input_data[plane_size + i] - mean[1]) * 0.007843;
-        input_data[2 * plane_size + i] = (input_data[2 * plane_size + i] - mean[2]) * 0.007843;
-      }
-    }
-
     net_->Forward();
 
     Blob<float>* result_blob = net_->output_blobs()[0];
@@ -97,7 +78,7 @@ namespace caffe {
 
       temp_confidence = *(result + 2);
 
-      checkConfidence(tmp_box, temp_confidence, detections, (int)*(result + 1));
+      checkConfidence(tmp_box, temp_confidence, detections, (int)*(result + 1), h, w);
       result += 7;
     }
 
@@ -107,10 +88,17 @@ namespace caffe {
   void CaffeMobile::checkConfidence(vector<float> pred_boxes,
                        float confidence,
                        vector<vector<float>> &results,
-                       int cls_num)
+                       int cls_num,
+                       int h, int w)
   {
     LOG(INFO)<<"CLASS_NUM: "<<cls_num<<"   confidence: "<<confidence;
 		if (confidence > CONF_THRESH){
+      LOG(INFO)<<"pred_boxes[0]: "<<pred_boxes[0]<<"   w: "<<w;
+      pred_boxes[0] *= w;
+      LOG(INFO)<<"pred_boxes[0]: "<<pred_boxes[0]<<"   w: "<<w;
+      pred_boxes[1] *= h;
+      pred_boxes[2] *= w;
+      pred_boxes[3] *= h;
       pred_boxes.push_back(confidence);
       pred_boxes.push_back((float)cls_num);
       results.push_back(pred_boxes);

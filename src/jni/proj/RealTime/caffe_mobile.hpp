@@ -35,8 +35,8 @@ public:
    * @brief Use loaded model to classify a Image
    * @param rgba: Grayscale(1 channel) or BGR(3 channels) pixels array
    */
-  bool predictMNSSD(const uint8_t* rgba,
-                    const std::vector<float> &mean,
+  bool predictMNSSD(float *inputData,
+                    int h, int w,
                     std::vector<std::vector<float> > &detections);
 
   int input_channels() {
@@ -50,7 +50,6 @@ public:
   int input_height() {
       return input_height_;
   }
-
 private:
   /**
    * @brief Construct a caffe net from the param file (*.prototxt)
@@ -58,7 +57,7 @@ private:
    */
   CaffeMobile(const string &param_file, const string &trained_file);
 
-  void checkConfidence(vector<float> pred_boxes, float confidence, vector<vector<float>> &results, int cls_num);
+  void checkConfidence(vector<float> pred_boxes, float confidence, vector<vector<float>> &results, int cls_num, int h, int w);
 
   static CaffeMobile *caffe_mobile_;
   /// @brief

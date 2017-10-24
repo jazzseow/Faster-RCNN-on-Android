@@ -30,18 +30,10 @@ extern "C" {
   JNIEXPORT jobjectArray JNICALL
   Java_com_example_jazz_realtimeobjectdetection_CameraActivity_mnssd(JNIEnv *env,
                                                                 jobject instance,
-                                                                jbyteArray jrgba,
-                                                                jfloatArray jmean)
+                                                                jfloatArray jmean,
+                                                                jint h, jint w, jbyteArray Y, jbyteArray U, jbyteArray V,
+                                                                jint rowStride, jint pixelStride)
   {
-    uint8_t *rgba = NULL;
-    // Get matrix pointer
-    if (NULL != jrgba) {
-      rgba = (uint8_t *)env->GetByteArrayElements(jrgba, 0);
-    } else {
-      LOG(ERROR) << "caffe-jni predict(): invalid args: jrgba(NULL)";
-      return NULL;
-    }
-
     std::vector<float> mean;
     if (NULL != jmean) {
       float * mean_arr = (float *)env->GetFloatArrayElements(jmean, 0);
@@ -49,6 +41,55 @@ extern "C" {
       mean.assign(mean_arr, mean_arr+mean_size);
     } else {
       LOG(INFO) << "caffe-jni predict(): args: jmean(NULL)";
+    }
+
+    jsize Y_len = env->GetArrayLength(Y);
+    jbyte * Y_data = env->GetByteArrayElements(Y, 0);
+    assert(Y_len <= MAX_DATA_SIZE);
+    jsize U_len = env->GetArrayLength(U);
+    jbyte * U_data = env->GetByteArrayElements(U, 0);
+    assert(U_len <= MAX_DATA_SIZE);
+    jsize V_len = env->GetArrayLength(V);
+    jbyte * V_data = env->GetByteArrayElements(V, 0);
+    assert(V_len <= MAX_DATA_SIZE);
+
+    #define min(a,b) ((a) > (b)) ? (b) : (a)
+    #define max(a,b) ((a) > (b)) ? (a) : (b)
+
+    auto h_offset = max(0, (h - IMG_H) / 2);
+    auto w_offset = max(0, (w - IMG_W) / 2);
+
+    auto iter_h = IMG_H;
+    auto iter_w = IMG_W;
+    if (h < IMG_H) {
+        iter_h = h;
+    }
+    if (w < IMG_W) {
+        iter_w = w;
+    }
+
+    for (auto i = 0; i < iter_h; ++i) {
+      jbyte* Y_row = &Y_data[(h_offset + i) * w];
+      jbyte* U_row = &U_data[(h_offset + i) / 4 * rowStride];
+      jbyte* V_row = &V_data[(h_offset + i) / 4 * rowStride];
+      for (auto j = 0; j < iter_w; ++j) {
+        // Tested on Pixel and S7.
+        char y = Y_row[w_offset + j];
+        char u = U_row[pixelStride * ((w_offset+j)/pixelStride)];
+        char v = V_row[pixelStride * ((w_offset+j)/pixelStride)];
+
+        auto b_i = 0 * IMG_H * IMG_W + j * IMG_W + i;
+        auto g_i = 1 * IMG_H * IMG_W + j * IMG_W + i;
+        auto r_i = 2 * IMG_H * IMG_W + j * IMG_W + i;
+        /*
+        R = Y + 1.402 (V-128)
+        G = Y - 0.34414 (U-128) - 0.71414 (V-128)
+        B = Y + 1.772 (U-V)
+        */
+        input_data[r_i] = -mean[0] + (float) ((float) min(255., max(0., (float) (y + 1.402 * (v - 128)))) * 0.007843);
+        input_data[g_i] = -mean[1] + (float) ((float) min(255., max(0., (float) (y - 0.34414 * (u - 128) - 0.71414 * (v - 128)))) * 0.007843);
+        input_data[b_i] = -mean[2] + (float) ((float) min(255., max(0., (float) (y + 1.772 * (u - v)))) * 0.007843);
+      }
     }
 
     caffe::CaffeMobile *caffe_mobile = caffe::CaffeMobile::get();
@@ -59,7 +100,7 @@ extern "C" {
 
     // float ** results = NULL;
     std::vector<std::vector<float>> results;
-    if (!caffe_mobile->predictMNSSD(rgba, mean, results)) {
+    if (!caffe_mobile->predictMNSSD(input_data, h, w, results)) {
       LOG(WARNING) << "caffe-jni predict(): CaffeMobile failed to predict";
       return NULL; // predict error
     }

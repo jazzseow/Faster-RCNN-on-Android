@@ -26,8 +26,9 @@ function build-abi {
         -DANDROID_NATIVE_API_LEVEL=$ANDROID_NATIVE_API_LEVEL \
         -DTHIRD_PARTY=1 \
         -G "Unix Makefiles" || exit 1
-    make -j 4 || exit 1
-    cd ../examples/android/ObjectDetection/app/
+    make -j 8 || exit 1
+    cd ../examples/android/RealTimeObjectDetection/app/
+    # cd ../examples/android/ObjectDetection/app/
     mkdir -p libs/${ANDROID_ABI%% *}
     ln -sf ../../../../../../build_${ANDROID_ABI%% *}/lib/libcaffe-jni.so libs/${ANDROID_ABI%% *}/libcaffe-jni.so
     cd ../../../..

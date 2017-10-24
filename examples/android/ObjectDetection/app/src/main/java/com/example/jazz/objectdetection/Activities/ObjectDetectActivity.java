@@ -83,7 +83,8 @@ public class ObjectDetectActivity extends AppCompatActivity {
                     Log.d(TAG, "Cannot load model");
                 }
 
-                mean = new float[] {127.5f, 127.5f, 127.5f};
+                mean = new float[] {102.9801f, 115.9465f, 122.7717f};
+
             }
             else if (model == 1){
                 File modelFile = new File(Environment.getExternalStorageDirectory(), "ObjectDetection/models/SSD_net.protobin");
@@ -107,7 +108,7 @@ public class ObjectDetectActivity extends AppCompatActivity {
                     Log.d(TAG, "Cannot load model");
                 }
 
-                mean = new float[] {102.9801f, 115.9465f, 122.7717f};
+                mean = new float[] {127.5f, 127.5f, 127.5f};
             }
             return null;
         }
