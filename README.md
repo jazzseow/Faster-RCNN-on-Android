@@ -1,4 +1,4 @@
-Faster RCNN on Android
+Faster RCNN/SSD/Mobilenet-SSD on Android
 ==================
 
 Faster RCNN build on Android with the help of these people:
